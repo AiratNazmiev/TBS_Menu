@@ -14,7 +14,7 @@ add_executable(TBS  main.cpp
                     Prim_game.hpp Prim_game.cpp
                     Prim_common.hpp
                     Field_draw.cpp Field_draw.h
-                    List.cpp List.h)
+                    List.cpp List.h Chat.cpp Chat.h)
 
 target_link_libraries(TBS sfml-graphics
         sfml-audio

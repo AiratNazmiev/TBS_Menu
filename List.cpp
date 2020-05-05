@@ -69,8 +69,34 @@ void List::setPlayers(const std::vector<gm::player_data> &player_data) {
     makeStrToDraw();
 }
 
-void List::splitStr(size_t str_num) {
-    //
+void List::setString(const std::vector<std::string> &msg, bool display_from_end) {
+    size_t str_len = 0;
+    size_t substr_num = 0;
+
+    text_str_.clear();
+    unsigned str_num = 0;
+    for (const auto &str : msg) {
+        if ((str_len = str.size()) > max_str_char_num_) {
+            substr_num = str_len / max_str_char_num_;
+
+            for (size_t i = 0; i < substr_num; ++i) {
+                text_str_.push_back(">" + str.substr(max_str_char_num_ * i, max_str_char_num_));
+            }
+
+            text_str_.push_back(str.substr(max_str_char_num_ * substr_num, str_len % max_str_char_num_));
+        } else {
+            text_str_.push_back(">" + str);
+        }
+
+        ++str_num;
+    }
+
+    //TODO WORKS?
+    total_str_num_ = text_str_.size();
+    first_displayed_str_ = (text_str_.size() >= max_displayed_str_num_ - 1 ?
+                            text_str_.size() - max_displayed_str_num_ + 1 : 0);
+
+    makeStrToDraw();
 }
 
 void List::draw(sf::RenderTarget &render, sf::RenderStates states) const {
@@ -97,13 +123,14 @@ void List::shiftDisplayedStrDown() {
 }
 
 void List::makeStrToDraw() {
-    size_t last_displayed_str = first_displayed_str_ + (total_str_num_ > max_displayed_str_num_ ?
+    size_t last_displayed_str = first_displayed_str_ + (total_str_num_ - first_displayed_str_ > max_displayed_str_num_ ?
                                                         max_displayed_str_num_ :
-                                                        total_str_num_ );
+                                                        total_str_num_ - first_displayed_str_);
     str_to_draw_.clear();
     for (size_t i = first_displayed_str_; i < last_displayed_str; ++i) {
         str_to_draw_ += (text_str_[i] + "\n");
     }
+    //str_to_draw_ += text_str_[last_displayed_str - 1];
 
     text_.setString(str_to_draw_);
 }

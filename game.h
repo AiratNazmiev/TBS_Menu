@@ -11,6 +11,7 @@
 #include "hexagonal_tile.h"
 #include "Prim_game.hpp"
 #include "List.h"
+#include "Chat.h"
 
 class Game : private sf::NonCopyable {
 public:
@@ -51,9 +52,7 @@ private:
 
     List players_list_;
 
-    //
-    //hexagonal_tile hex_;
-    //
+    Chat chat_;
 
     bool menu_;
     bool playing_;

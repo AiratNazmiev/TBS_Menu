@@ -28,8 +28,8 @@ Field_draw::Field_draw(const gm::Field &field,
 
     for (unsigned y = 0; y < height_; ++y) {
         for (unsigned x = 0; x < width_; ++x) {
-            (*this)[{y, x}].copyCell(field[{y, x}]);
-            (*this)[{y, x}].setPosition(point +
+            (*this)[{x, y}].copyCell(field[{x, y}]);
+            (*this)[{x, y}].setPosition(point +
                                         sf::Vector2f{horizontal_shift + horizontal_shift_step * static_cast<float>(x),
                                                      vertical_shift_step * static_cast<float>(y)});
         }
@@ -80,10 +80,10 @@ sf::Vector2u Field_draw::hexSelected(const sf::Vector2i &point) const {
     static float sqrt3_2 = sqrtf(3) / 2;
     for (unsigned y = 0; y < height_; ++y) {
         for (unsigned x = 0; x < width_; ++x) {
-            if ((*this)[{y, x}].getDimensions().contains(point.x, point.y)) {
-                res = {y, x};
-                center = (*this)[{y, x}].getCenter();
-                float incircle_radius = (*this)[{y, x}].getSideLen() * sqrt3_2;
+            if ((*this)[{x, y}].getDimensions().contains(point.x, point.y)) {
+                res = {x, y};
+                center = (*this)[{x, y}].getCenter();
+                float incircle_radius = (*this)[{x, y}].getSideLen() * sqrt3_2;
                 float d = dist({static_cast<float >(point.x), static_cast<float >(point.y)}, center);
                 if (incircle_radius >= d) {
                     return res;
@@ -99,7 +99,7 @@ sf::Vector2u Field_draw::hexSelected(const sf::Vector2i &point) const {
 void Field_draw::updateField_draw(const gm::Field &field) {
     for (unsigned y = 0; y < height_; ++y) {
         for (unsigned x = 0; x < width_; ++x) {
-            (*this)[{y, x}].copyCell(field[{y, x}]);
+            (*this)[{x, y}].copyCell(field[{x, y}]);
         }
     }
 }

@@ -10,8 +10,14 @@ Textbox::Textbox(const std::string &texture_file,
                  int size,
                  const sf::Color &color,
                  bool sel,
-                 const std::string &default_str) : isSelected_(sel),
-                                                   dimensions_(dimensions) {
+                 const std::string &default_str,
+                 int max_string_length,
+                 bool moving_window,
+                 unsigned max_displayed_char) : isSelected_(sel),
+                                                dimensions_(dimensions),
+                                                max_string_length(max_string_length),
+                                                moving_window_(moving_window),
+                                                max_displayed_char_(--max_displayed_char) {
 
     if (!texture_.loadFromFile(texture_file)) {
         throw std::runtime_error("Cannot load texture");
@@ -34,8 +40,17 @@ Textbox::Textbox(const std::string &texture_file,
     if (isSelected_) {
         textbox_.setString("_");
     } else {
-        textbox_.setString(default_str);
-        text_ = default_str;
+        if (!hasLimit_) {
+            textbox_.setString(default_str);
+            text_ = default_str;
+        } else {
+            if (default_str.length() > limit_) {
+                throw std::invalid_argument("String is too long");
+            }
+
+            textbox_.setString(default_str);
+            text_ = default_str;
+        }
     }
 }
 
@@ -70,8 +85,14 @@ void Textbox::setSelected(bool sel) {
     }
 }
 
-std::string Textbox::getText() {
-    return text_;
+std::string Textbox::getText(bool clear_text) {
+    if (!clear_text) {
+        return text_;
+    } else {
+        std::string tmp = text_;
+        this->clear();
+        return tmp;
+    }
 }
 
 void Textbox::drawTo(sf::RenderWindow &window) const {
@@ -89,32 +110,49 @@ void Textbox::typedOn(sf::Event input) {
         int charTyped = input.text.unicode;
 
         if (charTyped < 128) {
-            if (hasLimit_) {
-                if (text_.length() <= limit_) {
+            if (!moving_window_) {
+
+                if (hasLimit_) {
+                    if (text_.length() <= limit_) {
+                        inputLogic(charTyped);
+                    } else if (text_.length() > limit_ && charTyped == DELETE_KEY) {
+                        deleteLastChar();
+                    }
+                } else {
                     inputLogic(charTyped);
-                } else if (text_.length() > limit_ && charTyped == DELETE_KEY) {
-                    deleteLastChar();
                 }
+
             } else {
-                inputLogic(charTyped);
+                if (hasLimit_) {
+                    if (text_.length() <= limit_) {
+                        inputLogic(charTyped);
+                    } else if (text_.length() > limit_ && charTyped == DELETE_KEY) {
+                        deleteLastChar();
+                    } else if (text_.length() > limit_) {
+                        inputLogic(charTyped);
+                    }
+                } else {
+                    ++first_displayed_char;
+                    inputLogic(charTyped);
+                }
+
             }
         }
     }
 }
 
 void Textbox::deleteLastChar() {
-    std::string t = text_;
-    std::string newT;
-    for (int i = 0; i < t.length() - 1; i++) {
-        newT += t[i];
-    }
-    text_ = "";
-    text_ += newT;
+    (first_displayed_char > 0 ? --first_displayed_char : first_displayed_char);
+    text_ = text_.substr(0, text_.length() - 1);
     textbox_.setString(text_ + "_");
 }
 
 void Textbox::inputLogic(int charTyped) {
     if (charTyped != DELETE_KEY && charTyped != ENTER_KEY && charTyped != ESCAPE_KEY) {
+        if (text_.length() >= max_displayed_char_) {
+            ++first_displayed_char;
+        }
+
         text_ += static_cast<char>(charTyped);
     } else if (charTyped == DELETE_KEY) {
         if (text_.length() > 0) {
@@ -122,7 +160,12 @@ void Textbox::inputLogic(int charTyped) {
         }
     }
 
-    textbox_.setString(text_ + "_");
+    if (!moving_window_) {
+        textbox_.setString(text_ + "_");
+    } else {
+        display_text_ = text_.substr(first_displayed_char, text_.length() - first_displayed_char);
+        textbox_.setString(display_text_ + "_");
+    }
 }
 
 sf::IntRect Textbox::getDimensions() const {
@@ -131,5 +174,12 @@ sf::IntRect Textbox::getDimensions() const {
 
 bool Textbox::getSelected() const {
     return isSelected_;
+}
+
+void Textbox::clear() {
+    text_ = "";
+    display_text_ = "";
+    first_displayed_char = 0;
+    textbox_.setString(text_);
 }
 

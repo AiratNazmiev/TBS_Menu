@@ -7,6 +7,36 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
+// check the chat
+static std::vector<std::string> m = {{"QWERTY"},
+                                     {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
+                                     {"MMMMMMMMMMMMMMMMMMMMMM"},
+                                     {"TEST"},
+                                     {"QWERTY"},
+                                     {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
+                                     {"MMMMMMMMMMMMMMMMMMMMMM"},
+                                     {"TEST"},
+                                     {"QWERTY"},
+                                     {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
+                                     {"MMMMMMMMMMMMMMMMMMMMMM"},
+                                     {"TEST"},
+                                     {"QWERTY"},
+                                     {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
+                                     {"MMMMMMMMMMMMMMMMMMMMMM"},
+                                     {"TEST"},
+                                     {"QWERTY"},
+                                     {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
+                                     {"MMMMMMMMMMMMMMMMMMMMMM"},
+                                     {"TEST"},
+                                     {"QWERTY"},
+                                     {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
+                                     {"MMMMMMMMMMMMMMMMMMMMMM"},
+                                     {"TEST"},
+                                     {"QWERTY"},
+                                     {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
+                                     {"MMMMMMMMMMMMMMMMMMMMMM"},
+                                     {"TEST"}};
+
 //const float Game::PlayerSpeed = 500.f;
 const sf::Time Game::TimePerFrame = sf::seconds(1.f / 60.f);
 
@@ -17,6 +47,7 @@ Game::Game() : mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML App", s
                mStatisticsNumFrames(0),
                menu_(true),
                playing_(false),
+
                menu_window_("../Media/background_menu_sunset.png",
                             {{
                                      "../Media/connect_button.png",
@@ -58,9 +89,10 @@ Game::Game() : mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML App", s
                                     "Enter Nickname"
                             }
                ), field_(10, 10),
+
                field_window_(field_,
                              "../Media/disconnect_button.png",
-                             {{15,  655},
+                             {{10,  660},
                               {200, 50}},
                              sf::Vector2f{230, 5},
                              hexagonal_tile(
@@ -74,21 +106,54 @@ Game::Game() : mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML App", s
                                      sf::Color(255, 110, 0),
                                      1
                              )),
+
                players_list_("../Media/players_list.png",
-                             {{15, 57},
+                             {{10,  37},
                               {200, 120}},
                              "../Media/Chilanka-Regular.ttf",
                              16,
                              sf::Color::Black,
-                             {20, 100},
+                             {15, 80},
                              4,
                              15,
                              "../Media/button_up.png",
-                             {{215, 98},
+                             {{210, 78},
                               {20,  20}},
                              "../Media/button_down.png",
-                             {{215, 118},
-                              {20,  20}}) {
+                             {{210, 98},
+                              {20,  20}}),
+
+               chat_("../Media/chat.png",
+                     {{10,  170},
+                      {200, 500}},
+                       //List
+                     "../Media/chat_list.png",
+                     {{10,  170},
+                      {200, 470}},
+                     "../Media/Chilanka-Regular.ttf",
+                     16,
+                     sf::Color::Black,
+                     {15, 175},
+                     25,
+                     15,
+                     "../Media/button_up.png",
+                     {{210, 170},
+                      {20,  20}},
+                     "../Media/button_down.png",
+                     {{210, 190},
+                      {20,  20}},
+                       //textbox
+                     "../Media/chat_textbox.png",
+                     {{10,  610},
+                      {200, 30}},
+                     "../Media/Chilanka-Regular.ttf",
+                     16,
+                     sf::Color::Black,
+                     false,
+                     "ABCDEFGHIJKLMN",
+                     15,  //non-standard char length
+                     true //moving window
+               ) {
 
     // font for fps
 
@@ -100,10 +165,20 @@ Game::Game() : mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML App", s
     mStatisticsText.setPosition(0.f, 0.f);
     mStatisticsText.setCharacterSize(10);
 
-    //
-    std::vector<gm::player_data> v = {{"QWERTY"},{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"}, {"MMMMMMMMMMMMMMMMMMMMMM"}, {"Anonymus"}};
+    //examples
+    //load list of players
+    std::vector<gm::player_data> v = {{"QWERTY"},
+                                      {"ABCDEFGHIJKLMNOPQRSTUVWXYZ"},
+                                      {"MMMMMMMMMMMMMMMMMMMMMM"},
+                                      {"Anonymus"}};
     players_list_.setPlayers(v);
+
+    //example
+    //load messages
+
+    chat_.loadMessages(m, true);
 }
+
 
 void Game::run() {
     sf::Clock clock{};
@@ -141,7 +216,7 @@ void Game::processEvents() {
                 break;
 
             case sf::Event::KeyReleased:
-                handlePlayerInput(event.key.code, false);
+                //handlePlayerInput(event.key.code, false);
                 break;
 
             case sf::Event::Closed:
@@ -153,6 +228,7 @@ void Game::processEvents() {
 
 void Game::update() {
     if (playing_) {
+        //Important: update the state of the field
         field_window_.updateField_draw(field_);
     } else if (menu_) {
         //menu
@@ -166,6 +242,7 @@ void Game::render() {
     if (playing_) {
         mWindow.draw(field_window_);
         mWindow.draw(players_list_);
+        mWindow.draw(chat_);
         mWindow.draw(mStatisticsText);
     } else if (menu_) {
         mWindow.draw(menu_window_);
@@ -195,8 +272,23 @@ void Game::updateStatistics(sf::Time elapsedTime) {
 
 void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
     if (playing_) {
+        //check
+        std::string tmp;
         switch (key) {
+            case sf::Keyboard::Return:
+                if (chat_.textbox.getSelected()) {
+                    chat_.textbox.setSelected(false);
+                }
 
+                tmp = chat_.getText();
+                std::cout << tmp;
+                std::cout << std::endl;
+                m.push_back(tmp);
+                chat_.loadMessages(m, true);
+
+
+                break;
+            default:;
         }
     } else if (menu_) {
         switch (key) {
@@ -241,6 +333,7 @@ void Game::handleMouse(sf::Mouse::Button button) {
                     !menu_window_.textbox_nickname.getSelected()) {
                     menu_window_.textbox_ip.setSelected(true);
                 }
+
                 break;
 
             default:;
@@ -249,12 +342,15 @@ void Game::handleMouse(sf::Mouse::Button button) {
         switch (button) {
             case sf::Mouse::Left:
                 sf::Vector2u hex_selected = field_window_.hexSelected(sf::Mouse::getPosition(mWindow));
+
+                //demonstration
                 std::cout << hex_selected << std::endl; // print selected hex
                 // inc size of selected cell
                 if (hex_selected != sf::Vector2u{static_cast<unsigned int>(field_.width() + 1),
                                                  static_cast<unsigned int>(field_.height() + 1)}) {
                     ++field_[hex_selected]._size;
                 }
+                //
 
                 if (field_window_.button_disconnect.getDimensions().contains(sf::Mouse::getPosition(mWindow))) {
                     // TODO handle disconnect in client
@@ -268,6 +364,18 @@ void Game::handleMouse(sf::Mouse::Button button) {
 
                 if (players_list_.button_down.getDimensions().contains(sf::Mouse::getPosition(mWindow))) {
                     players_list_.shiftDisplayedStrDown();
+                }
+
+                if (chat_.textbox.getDimensions().contains(sf::Mouse::getPosition(mWindow))) {
+                    chat_.textbox.setSelected(true);
+                }
+
+                if (chat_.msg_list.button_up.getDimensions().contains(sf::Mouse::getPosition(mWindow))) {
+                    chat_.msg_list.shiftDisplayedStrUp();
+                }
+
+                if (chat_.msg_list.button_down.getDimensions().contains(sf::Mouse::getPosition(mWindow))) {
+                    chat_.msg_list.shiftDisplayedStrDown();
                 }
 
                 break;
@@ -285,6 +393,8 @@ void Game::handleEnteredText(sf::Event event) {
             menu_window_.textbox_ip.typedOn(event);
         }
     } else if (playing_) {
-        //
+        if (chat_.textbox.getSelected()) {
+            chat_.textbox.typedOn(event);
+        }
     }
 }

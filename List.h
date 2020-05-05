@@ -28,6 +28,10 @@ public:
     //set the list of players if you want to write it for 1st time or update
     void setPlayers(const std::vector<gm::player_data> &player_data);
 
+    //set string - in chat. In chat you should select first_displayed - so the list will start here
+    //you better to synchronize first_displayed_str and max_displayed_str_num, like this: first_displayed_str = [last message] - max_displayed_str_num
+    void setString(const std::vector<std::string> &msg, bool display_from_end = false);
+
     void shiftDisplayedStrUp();
 
     void shiftDisplayedStrDown();
@@ -40,8 +44,6 @@ public:
     Button button_down;
 
 private:
-    void splitStr(size_t str_num);
-
     void makeStrToDraw();
 
 private:
