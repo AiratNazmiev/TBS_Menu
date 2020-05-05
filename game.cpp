@@ -59,29 +59,36 @@ Game::Game() : mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML App", s
                             }
                ), field_(10, 10),
                field_window_(field_,
-                             sf::Vector2f{110, 5},
+                             "../Media/disconnect_button.png",
+                             {{15,  655},
+                              {200, 50}},
+                             sf::Vector2f{230, 5},
                              hexagonal_tile(
                                      {},
                                      sf::Vector2f{0, 0},
                                      "../Media/Sansation.ttf",
                                      16,
-                                     sf::Color::Black,
+                                     sf::Color(255, 110, 0),
                                      45,
-                                     sf::Color::Red,
-                                     sf::Color::White,
+                                     sf::Color(87, 65, 37),
+                                     sf::Color(255, 110, 0),
                                      1
-                             ))
-                             /* ,hex_(
-                                     {0, 42, 1},
-                                     sf::Vector2f{0, 0},
-                                     "../Media/Sansation.ttf",
-                                     16,
-                                     sf::Color::Black,
-                                     45,
-                                     sf::Color::Red,
-                                     sf::Color::White,
-                                     1
-                             )*/ {
+                             )),
+               players_list_("../Media/players_list.png",
+                             {{15, 57},
+                              {200, 120}},
+                             "../Media/Chilanka-Regular.ttf",
+                             16,
+                             sf::Color::Black,
+                             {20, 100},
+                             4,
+                             15,
+                             "../Media/button_up.png",
+                             {{215, 98},
+                              {20,  20}},
+                             "../Media/button_down.png",
+                             {{215, 118},
+                              {20,  20}}) {
 
     // font for fps
 
@@ -94,6 +101,8 @@ Game::Game() : mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML App", s
     mStatisticsText.setCharacterSize(10);
 
     //
+    std::vector<gm::player_data> v = {{"QWERTY"},{"ABCDEFGHIJKLMNOPQRSTUVWXYZ"}, {"MMMMMMMMMMMMMMMMMMMMMM"}, {"Anonymus"}};
+    players_list_.setPlayers(v);
 }
 
 void Game::run() {
@@ -124,16 +133,9 @@ void Game::processEvents() {
                 handleMouse(event.mouseButton.button);
                 break;
             case sf::Event::TextEntered: // (!) goes before keyPressed
-                if (menu_) {
-                    if (menu_window_.textbox_nickname.getSelected()) {
-                        menu_window_.textbox_nickname.typedOn(event);
-                    }
+                handleEnteredText(event);
+                break;
 
-                    if (menu_window_.textbox_ip.getSelected()) {
-                        menu_window_.textbox_ip.typedOn(event);
-                    }
-                    break;
-                }
             case sf::Event::KeyPressed:
                 handlePlayerInput(event.key.code, true);
                 break;
@@ -163,7 +165,7 @@ void Game::render() {
 
     if (playing_) {
         mWindow.draw(field_window_);
-        //mWindow.draw(hex_);
+        mWindow.draw(players_list_);
         mWindow.draw(mStatisticsText);
     } else if (menu_) {
         mWindow.draw(menu_window_);
@@ -223,7 +225,7 @@ void Game::handleMouse(sf::Mouse::Button button) {
                 }
 
                 if (menu_window_.button_create.getDimensions().contains(sf::Mouse::getPosition(mWindow))) {
-                    //
+                    //TODO create new game
                 }
 
                 if (menu_window_.button_exit.getDimensions().contains(sf::Mouse::getPosition(mWindow))) {
@@ -246,13 +248,43 @@ void Game::handleMouse(sf::Mouse::Button button) {
     } else if (playing_) {
         switch (button) {
             case sf::Mouse::Left:
-                    sf::Vector2u hex_selected = field_window_.hexSelected(sf::Mouse::getPosition(mWindow));
-                    std::cout << hex_selected << std::endl; // print selected hex
-                    // inc size of selected cell
-                    if (hex_selected != sf::Vector2u{static_cast<unsigned int>(field_.width() + 1), static_cast<unsigned int>(field_.height() + 1)}) {
-                        ++field_[hex_selected]._size;
-                    }
+                sf::Vector2u hex_selected = field_window_.hexSelected(sf::Mouse::getPosition(mWindow));
+                std::cout << hex_selected << std::endl; // print selected hex
+                // inc size of selected cell
+                if (hex_selected != sf::Vector2u{static_cast<unsigned int>(field_.width() + 1),
+                                                 static_cast<unsigned int>(field_.height() + 1)}) {
+                    ++field_[hex_selected]._size;
+                }
+
+                if (field_window_.button_disconnect.getDimensions().contains(sf::Mouse::getPosition(mWindow))) {
+                    // TODO handle disconnect in client
+                    menu_ = true;
+                    playing_ = false;
+                }
+
+                if (players_list_.button_up.getDimensions().contains(sf::Mouse::getPosition(mWindow))) {
+                    players_list_.shiftDisplayedStrUp();
+                }
+
+                if (players_list_.button_down.getDimensions().contains(sf::Mouse::getPosition(mWindow))) {
+                    players_list_.shiftDisplayedStrDown();
+                }
+
                 break;
         }
+    }
+}
+
+void Game::handleEnteredText(sf::Event event) {
+    if (menu_) {
+        if (menu_window_.textbox_nickname.getSelected()) {
+            menu_window_.textbox_nickname.typedOn(event);
+        }
+
+        if (menu_window_.textbox_ip.getSelected()) {
+            menu_window_.textbox_ip.typedOn(event);
+        }
+    } else if (playing_) {
+        //
     }
 }

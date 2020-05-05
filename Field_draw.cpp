@@ -7,9 +7,13 @@
 #include "Field_draw.h"
 
 Field_draw::Field_draw(const gm::Field &field,
+                       const std::string &texture_file_button_disconnect,
+                       const sf::IntRect &dimensions_button_disconnect,
                        const sf::Vector2f &point,
                        const hexagonal_tile &hex_tile) : width_(field.width()),
                                                          height_(field.height()),
+                                                         button_disconnect(texture_file_button_disconnect,
+                                                                           dimensions_button_disconnect),
                                                          position_(point),
                                                          hexagonal_field_(
                                                                  field.height(), //fill the vector with hex_tiles with needed size
@@ -45,6 +49,8 @@ void Field_draw::draw(sf::RenderTarget &render, sf::RenderStates states) const {
             render.draw(hexagonal_field_[y][x]);
         }
     }
+
+    render.draw(button_disconnect);
 }
 
 hexagonal_tile &Field_draw::operator[](const sf::Vector2u &v) {

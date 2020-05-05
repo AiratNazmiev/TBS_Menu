@@ -10,6 +10,7 @@
 #include "Field_draw.h"
 #include "hexagonal_tile.h"
 #include "Prim_game.hpp"
+#include "List.h"
 
 class Game : private sf::NonCopyable {
 public:
@@ -30,6 +31,8 @@ private:
 
     void handleMouse(sf::Mouse::Button button);
 
+    void handleEnteredText(sf::Event event);
+
 private:
     static const sf::Time TimePerFrame;
     const unsigned WINDOW_HEIGHT = 720;
@@ -45,6 +48,8 @@ private:
     Menu menu_window_;
     gm::Field field_;
     Field_draw field_window_;
+
+    List players_list_;
 
     //
     //hexagonal_tile hex_;

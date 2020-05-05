@@ -9,6 +9,7 @@
 
 #include "Prim_game.hpp"
 #include "hexagonal_tile.h"
+#include "Button.h"
 
 /*
  * you must update field_draw state in update() using updateField_draw() (!)
@@ -21,6 +22,8 @@
 class Field_draw : public sf::Drawable {
 public:
     Field_draw(const gm::Field &field,
+               const std::string &texture_file_button_disconnect,
+               const sf::IntRect &dimensions_button_disconnect,
                const sf::Vector2f &point = {10, 10},
                const hexagonal_tile &hex_tile = { //default hexagon parameters for 10x10 field
                        {}, //cell init param is also redundant for field
@@ -50,6 +53,9 @@ public:
 
 public:
     virtual void draw(sf::RenderTarget &render, sf::RenderStates states) const override;
+
+public:
+    Button button_disconnect;
 
 private:
     std::vector<std::vector<hexagonal_tile>> hexagonal_field_;

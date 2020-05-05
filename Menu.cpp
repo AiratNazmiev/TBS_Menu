@@ -4,8 +4,8 @@
 
 #include "Menu.h"
 
-#define BUTTON_CTR(num) texture_file[(num)], dimensions[(num)]
-#define TEXTBOX_CTR(num) texture_file[(num) + BUTTON_NUM], dimensions[(num) + BUTTON_NUM], font_file[(num)] ,char_size[(num)], color[(num)], sel[(num)], default_str[(num)]
+#define MENU_BUTTON_CTR(num) texture_file[(num)], dimensions[(num)]
+#define MENU_TEXTBOX_CTR(num) texture_file[(num) + BUTTON_NUM], dimensions[(num) + BUTTON_NUM], font_file[(num)] ,char_size[(num)], color[(num)], sel[(num)], default_str[(num)]
 
 Menu::Menu(const std::string &texture_file_background,
            const std::array<std::string, TOTAL_NUM> &texture_file,
@@ -14,11 +14,11 @@ Menu::Menu(const std::string &texture_file_background,
            const std::array<int, TEXTBOX_NUM> &char_size,
            const std::array<sf::Color, TEXTBOX_NUM> &color,
            const std::array<bool, TEXTBOX_NUM> &sel,
-           const std::array<std::string, TEXTBOX_NUM> &default_str) : button_connect(BUTTON_CTR(0)),
-                                                                      button_create(BUTTON_CTR(1)),
-                                                                      button_exit(BUTTON_CTR(2)),
-                                                                      textbox_nickname(TEXTBOX_CTR(0)),
-                                                                      textbox_ip(TEXTBOX_CTR(1)) {
+           const std::array<std::string, TEXTBOX_NUM> &default_str) : button_connect(MENU_BUTTON_CTR(0)),
+                                                                      button_create(MENU_BUTTON_CTR(1)),
+                                                                      button_exit(MENU_BUTTON_CTR(2)),
+                                                                      textbox_nickname(MENU_TEXTBOX_CTR(0)),
+                                                                      textbox_ip(MENU_TEXTBOX_CTR(1)) {
     if (!texture_.loadFromFile(texture_file_background)) {
         throw std::runtime_error("Cannot load texture");
     }
