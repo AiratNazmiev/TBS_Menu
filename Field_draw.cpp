@@ -71,22 +71,21 @@ float dist(const sf::Vector2f &a, const sf::Vector2f &b) {
 sf::Vector2u Field_draw::hexSelected(const sf::Vector2i &point) const {
     sf::Vector2u res = {};
     sf::Vector2f center = {};
+    static float sqrt3_2 = sqrtf(3) / 2;
     for (unsigned y = 0; y < height_; ++y) {
         for (unsigned x = 0; x < width_; ++x) {
             if ((*this)[{y, x}].getDimensions().contains(point.x, point.y)) {
                 res = {y, x};
                 center = (*this)[{y, x}].getCenter();
-                float incircle_radius = (*this)[{y, x}].getSideLen() * sqrtf(3) / 2;
+                float incircle_radius = (*this)[{y, x}].getSideLen() * sqrt3_2;
                 float d = dist({static_cast<float >(point.x), static_cast<float >(point.y)}, center);
                 if (incircle_radius >= d) {
                     return res;
-                } else {
-                    return sf::Vector2u{static_cast<unsigned int>(width_ + 1),
-                                        static_cast<unsigned int>(height_ + 1)};
                 }
             }
         }
     }
+
     return sf::Vector2u{static_cast<unsigned int>(width_ + 1),
                         static_cast<unsigned int>(height_ + 1)};
 }
