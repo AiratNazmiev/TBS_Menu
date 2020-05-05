@@ -58,6 +58,9 @@ public:
     Button button_disconnect;
 
 private:
+    sf::Texture texture_;
+    sf::Sprite sprite_;
+
     std::vector<std::vector<hexagonal_tile>> hexagonal_field_;
     sf::Vector2f position_;
     size_t width_;
