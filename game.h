@@ -7,6 +7,9 @@
 
 #include <SFML/Graphics.hpp>
 #include "Menu.h"
+#include "Field_draw.h"
+#include "hexagonal_tile.h"
+#include "Prim_game.hpp"
 
 class Game : private sf::NonCopyable {
 public:
@@ -17,7 +20,7 @@ public:
 private:
     void processEvents();
 
-    void update(sf::Time deltaTime);
+    void update();
 
     void render();
 
@@ -28,26 +31,24 @@ private:
     void handleMouse(sf::Mouse::Button button);
 
 private:
-    //static const float PlayerSpeed;
     static const sf::Time TimePerFrame;
-
     const unsigned WINDOW_HEIGHT = 720;
     const unsigned WINDOW_WIDTH = 1080;
 
     sf::RenderWindow mWindow;
-    //sf::Texture mTexture;
-    //sf::Sprite mPlayer;
     sf::Font mFont;
     sf::Text mStatisticsText;
     sf::Time mStatisticsUpdateTime;
 
     std::size_t mStatisticsNumFrames;
-    //bool mIsMovingUp;
-    //bool mIsMovingDown;
-    //bool mIsMovingRight;
-    //bool mIsMovingLeft;
 
     Menu menu_window_;
+    gm::Field field_;
+    Field_draw field_window_;
+
+    //
+    //hexagonal_tile hex_;
+    //
 
     bool menu_;
     bool playing_;

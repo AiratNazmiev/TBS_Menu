@@ -57,7 +57,31 @@ Game::Game() : mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "SFML App", s
                                     "127.0.0.1",
                                     "Enter Nickname"
                             }
-               ) {
+               ), field_(10, 10),
+               field_window_(field_,
+                             sf::Vector2f{110, 5},
+                             hexagonal_tile(
+                                     {},
+                                     sf::Vector2f{0, 0},
+                                     "../Media/Sansation.ttf",
+                                     16,
+                                     sf::Color::Black,
+                                     45,
+                                     sf::Color::Red,
+                                     sf::Color::White,
+                                     1
+                             ))
+                             /* ,hex_(
+                                     {0, 42, 1},
+                                     sf::Vector2f{0, 0},
+                                     "../Media/Sansation.ttf",
+                                     16,
+                                     sf::Color::Black,
+                                     45,
+                                     sf::Color::Red,
+                                     sf::Color::White,
+                                     1
+                             )*/ {
 
     // font for fps
 
@@ -83,9 +107,8 @@ void Game::run() {
             timeSinceLastUpdate -= TimePerFrame;
 
             processEvents();
-            update(TimePerFrame);
+            update();
         }
-
         updateStatistics(elapsedTime);
         render();
     }
@@ -126,9 +149,9 @@ void Game::processEvents() {
     }
 }
 
-void Game::update(sf::Time deltaTime) {
+void Game::update() {
     if (playing_) {
-        //
+        field_window_.updateField_draw(field_);
     } else if (menu_) {
         //menu
     }
@@ -139,7 +162,8 @@ void Game::render() {
     mWindow.clear();
 
     if (playing_) {
-
+        mWindow.draw(field_window_);
+        //mWindow.draw(hex_);
         mWindow.draw(mStatisticsText);
     } else if (menu_) {
         mWindow.draw(menu_window_);
@@ -170,7 +194,7 @@ void Game::updateStatistics(sf::Time elapsedTime) {
 void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
     if (playing_) {
         switch (key) {
-            //
+
         }
     } else if (menu_) {
         switch (key) {
@@ -220,6 +244,15 @@ void Game::handleMouse(sf::Mouse::Button button) {
             default:;
         }
     } else if (playing_) {
-        //
+        switch (button) {
+            case sf::Mouse::Left:
+                    sf::Vector2u hex_selected = field_window_.hexSelected(sf::Mouse::getPosition(mWindow));
+                    std::cout << hex_selected << std::endl; // print selected hex
+                    // inc size of selected cell
+                    if (hex_selected != sf::Vector2u{static_cast<unsigned int>(field_.width() + 1), static_cast<unsigned int>(field_.height() + 1)}) {
+                        ++field_[hex_selected]._size;
+                    }
+                break;
+        }
     }
 }
